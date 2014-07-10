@@ -1,0 +1,124 @@
+#include <stdlib.h>
+#include <stdio.h>
+#include <math.h>
+#include <time.h>
+#include <string.h>
+
+struct atom {
+	int element;
+	struct atom *next;
+};
+typedef struct atom Element;
+
+
+typedef struct {
+	Element *top;
+} Stack;
+
+void init_stack(Stack *stack) {
+	stack->top = NULL;
+}
+
+int pop(Stack *stack, Element *elem) {
+	Element *tmp;
+	if (stack->top != NULL) {
+		*elem = *(stack->top);
+		tmp = stack->top;
+		stack->top = stack->top->next;
+		free(tmp);
+		return 1;
+	}
+	return 0;
+}
+
+int push(Stack *stack, Element elem) {
+	Element *new_element;
+
+	if ((new_element = (Element*)malloc(sizeof(Element))) == NULL)
+		return 0;
+	new_element->element = elem.element;
+	new_element->next = stack->top;
+	stack->top = new_element;
+	return 1;
+}
+
+Stack armstrong(Stack *stack, int *numArmstrong) {
+
+	Stack newst, temp;
+	Element el;
+	int first, second, third;
+
+	init_stack(&newst);
+	init_stack(&temp);
+	*numArmstrong = 0;
+
+	while (pop(stack, &el)) {
+
+		push(&temp, el);
+
+		first = el.element / 100;
+		second = (el.element / 10) % 10;
+		third = el.element % 10;
+
+		if (el.element == (pow(first, 3.0) + pow(second, 3.0) + pow(third, 3.0))) {
+			push(&newst, el);
+			(*numArmstrong)++;
+		}
+	}
+
+	while (pop(&temp, &el))
+		push(stack, el);
+
+	return newst;
+}
+
+void printStack(Stack stack) {
+	Element *tmp = stack.top;
+
+	while (tmp) {
+		printf("%d : \n", tmp->element);
+		tmp = tmp->next;
+	}
+}
+
+int main() {
+
+	Stack stack, new_stack;
+	Element el;
+	char end;
+	int numOfArmstrong;
+
+
+	init_stack(&stack);
+	el.next = NULL;
+
+	srand((unsigned)time(NULL));
+	/*while (1) {
+	getchar();
+	printf("Push onto the stack? Type y/n\n");
+	end = getchar();
+	if (end == 'n')
+	break;
+
+
+	el.element = rand() % 900 + 100;
+	push(&stack, el);
+	printf("Element %d has been pushed onto the stack. \n", el.element);
+
+	}*/
+
+	for (int i = 0; i < 50; i++) {
+		el.element = rand() % 900 + 100;
+		push(&stack, el);
+	}
+
+	printf("The content of the stack is as follows. The first element printed is at the top.\n");
+	printStack(stack);
+
+	new_stack = armstrong(&stack, &numOfArmstrong);
+	printf("The number of elements on the new stack is %d\n", numOfArmstrong);
+	printf("The content of the new stack is as follows. The first element printed is at the top.\n");
+	printStack(new_stack);
+
+
+}
