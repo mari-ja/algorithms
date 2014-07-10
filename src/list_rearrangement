@@ -1,0 +1,112 @@
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+
+
+struct el {
+	char name[80 + 1];
+	int grade;
+};
+typedef struct el element;
+
+struct n {
+	element elem;
+	struct n *next;
+};
+typedef struct n node;
+
+//add at the beginning of the list
+int addToList(node **head, element elem) {
+	node *new_node;
+
+	if ((new_node = (node *) malloc(sizeof(node))) != NULL) {
+		new_node->elem = elem;
+		new_node->next = *head;
+		*head = new_node;
+		return 1;
+	}
+	return 0;
+}
+
+void rearrangeList(node **head, int grade) {
+
+	node *left = NULL, *right = NULL, *prevleft = NULL, *next, *tmp = *head;
+	int firstleft = 1;
+
+
+	while (tmp != NULL) {
+		next = tmp->next;
+		if (tmp->elem.grade <= grade) {
+			tmp->next = right;
+			right = tmp;
+		}
+		else {
+			if (firstleft) {
+				firstleft = 0;
+				left = tmp;				
+			} else {
+				prevleft->next = tmp;
+			}			
+			prevleft = tmp;
+		}
+		tmp = next;
+	}	
+
+	if (left == NULL) {
+		*head = right;
+	}
+	else {
+		*head = left;		
+		prevleft->next = right;
+	}
+}
+
+
+void printList(node *head) {	
+
+	while (head != NULL) {
+		printf("Student: %s, Grade: %d; ---> ", head->elem.name, head->elem.grade);
+		head = head->next;
+	}
+}
+
+
+int main() {
+
+	node *head = NULL;
+	char name[80 + 1];
+	char end;
+	int grade;
+	
+	while (1) {
+		
+		printf("Enter student name:\n");
+		scanf("%s", &name);
+		printf("Enter student grade:\n");
+		scanf("%d", &grade);
+		
+		element el;
+		strcpy(el.name, name);
+		el.grade = grade;
+
+
+		addToList(&head, el);
+
+		getchar();
+		printf("Add new student? Type y/n\n");
+		end = getchar();
+		if (end == 'n')
+			break;
+
+	}
+	printf("LIST: \n");
+	printList(head);
+	printf("\n");
+	printf("Enter the grade for list arrangement: \n");
+	scanf("%d", &grade);
+
+	rearrangeList(&head, grade);
+
+	printf("LIST (after arrangement): \n");
+	printList(head);
+}
