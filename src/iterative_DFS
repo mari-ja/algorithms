@@ -1,0 +1,132 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+
+//node in a tree
+struct n {
+	int number;
+	struct n *left, *right;
+};
+typedef struct n node;
+
+//node in a stack
+struct at {
+	node element;
+	struct at *next;
+};
+typedef struct at atom;
+
+//stack
+typedef struct {
+	atom *top;
+} Stack;
+
+
+void init_stack(Stack *stack) {
+	stack->top = NULL;
+}
+
+int pop(Stack *stack, node *elem) {
+	atom *tmp;
+	if (stack->top != NULL) {
+		*elem = stack->top->element;
+		tmp = stack->top;
+		stack->top = stack->top->next;
+		free(tmp);
+		return 1;
+	}
+	return 0;
+}
+
+int push(Stack *stack, node elem) {
+	atom *new_element;
+
+	if ((new_element = (atom*)malloc(sizeof(atom))) == NULL)
+		return 0;
+	new_element->element = elem;
+	new_element->next = stack->top;
+	stack->top = new_element;
+	return 1;
+}
+
+
+node* addToTree(node* root, int element) {
+	if (root == NULL) {
+		root = (node *)malloc(sizeof (node));
+		root->number = element;	
+		root->left = NULL;
+		root->right = NULL;		
+	}
+	else {
+		if (element <= root->number) 
+			root->left = addToTree(root->left, element);
+		else 
+			root->right = addToTree(root->right, element);		
+	}
+	return root;
+} 
+
+void iterativeDFS(node *root) {
+	Stack stack;
+	
+	if (!root)
+		return;
+	node e = *root;	
+	init_stack(&stack);	
+	push(&stack, e);
+	while (pop(&stack, &e)) {
+		printf("%d, ", e.number);
+		if (e.left)
+			push(&stack, *(e.left));
+		if (e.right)
+			push(&stack, *(e.right));
+	}
+}
+
+
+//inorder printout
+void printTree(node *root) {
+	if (!root) 
+		return;
+	printTree(root->left);
+	printf("%d, ", root->number);
+	printTree(root->right);
+
+}
+
+
+int main() {
+	
+	node *root = NULL;	
+	char c;
+	int num;
+
+	srand((unsigned)time(NULL));
+	while (1) {
+		getchar();
+		printf("Add to tree? Type y/n\n");
+		c = getchar();
+		if (c == 'n')
+			break;		
+	
+		num = rand();
+		root = addToTree(root, num);
+		printf("%d element added\n", num);
+	}
+	printf("Inorder printout of the tree.\n");
+	printTree(root);
+	printf("\n");
+
+	printf("Depth first search printout of the tree.\n");
+	iterativeDFS(root);
+
+	
+	return 1;
+}
+
+
+
+
+
+
