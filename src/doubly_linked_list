@@ -1,0 +1,101 @@
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+
+
+struct el {
+	char name[80 + 1];
+	int grade;
+};
+typedef struct el element;
+
+struct n {
+	element elem;
+	struct n *next;
+	struct n *prev;
+};
+typedef struct n node;
+
+
+
+int addToDoubleList(element student, node **head, node **tail) {
+	node *tmp, *new_elem;
+
+	new_elem = (node *)malloc(sizeof(node));
+	if (new_elem == NULL)
+		return 0;
+	new_elem->elem = student;
+	
+	if (*head == NULL) { 
+		new_elem->next = NULL;
+		new_elem->prev = NULL;
+		*head = *tail = new_elem;
+	}
+	else if ((*head)->elem.grade >= student.grade) {
+		new_elem->next = *head;
+		new_elem->prev = NULL;
+		(*head)->prev = new_elem;
+		*head = new_elem;
+	}
+	else{
+		// Addition of a new element after an existing one when:
+		// a) the exiting one is the last element in the list (tail must be changed)
+		// b) the grade of the next element is larger than or equal to the grade of the new element	
+		for (tmp = *head; tmp->next && (tmp->next)->elem.grade < student.grade; tmp = tmp->next); {
+			new_elem->next = tmp->next;
+		}
+		new_elem->prev = tmp;
+		tmp->next = new_elem;
+
+		if (tmp == *tail) { //a) the exiting one is the last element in the list	
+			*tail = new_elem;
+		}
+		else { //new_elem->next != NULL
+			new_elem->next->prev = new_elem;
+		}
+	}
+	return 1;
+}
+
+void printList(node *head) {
+	while (head != NULL) {
+		printf("Student: %s, Grade: %d; ---> ", head->elem.name, head->elem.grade);
+		head = head->next;
+	}
+}
+
+
+int main() {
+
+	node *head = NULL;
+	node *tail = NULL;
+	char name[80 + 1];
+	char end;
+	int grade;
+
+	while (1) {
+
+		printf("Enter student name:\n");
+		scanf("%s", &name);
+		printf("Enter student grade:\n");
+		scanf("%d", &grade);
+
+		element student;
+		strcpy(student.name, name);
+		student.grade = grade;
+
+
+		addToDoubleList(student, &head, &tail);
+
+		getchar();
+		printf("Add new student? Type y/n\n");
+		end = getchar();
+		if (end == 'n')
+			break;
+
+	}
+	printf("LIST: \n");
+	printList(head);
+	printf("\n");
+	
+}
