@@ -57,6 +57,59 @@ int addToDoubleList(element student, node **head, node **tail) {
 	return 1;
 }
 
+
+void merge(node **head1, node **tail1, node**head2, node **tail2) {
+
+	node *curr;
+	node *prev;
+	node *head;
+
+	if ((*head1)->elem.grade <= (*head2)->elem.grade) 
+		head = prev = *head1;
+	else 
+		head = prev = *head2;
+
+	while (1) {
+				
+		if ((*head1 == NULL) && (*head2 != NULL)) {
+			prev->next = *head2;
+			(*head2)->prev = prev;
+			*tail1 = *tail2;
+			break;
+		}
+		else if ((*head2 == NULL) && (*head1 != NULL)) {
+			prev->next = *head1;
+			(*head1)->prev = prev;
+			*tail2 = *tail1;
+			break;
+		}		
+		if ((*head1)->elem.grade <= (*head2)->elem.grade) {
+			curr = *head1;
+			*head1 = (*head1)->next;
+			if (*head1) (*head1)->prev = NULL;
+		}
+		else {
+			curr = *head2;
+			*head2 = curr->next;
+			if (*head2) (*head2)->prev = NULL;
+		}
+		if (curr) curr->next = NULL;
+		
+		if (curr == head){
+			curr->prev = NULL;
+			prev->next = NULL;
+		}
+		else{
+			curr->prev = prev;
+			prev->next = curr;
+			prev = prev->next;
+		}
+	}
+	
+	*head1 = *head2 = head;
+}
+
+
 void printList(node *head) {
 	while (head != NULL) {
 		printf("Student: %s, Grade: %d; ---> ", head->elem.name, head->elem.grade);
@@ -67,12 +120,12 @@ void printList(node *head) {
 
 int main() {
 
-	node *head = NULL;
-	node *tail = NULL;
+	node *head1 = NULL, *head2 = NULL;
+	node *tail1 = NULL, *tail2 = NULL;
 	char name[80 + 1];
-	char end;
+	char c;
 	int grade;
-
+		
 	while (1) {
 
 		printf("Enter student name:\n");
@@ -84,18 +137,43 @@ int main() {
 		strcpy(student.name, name);
 		student.grade = grade;
 
-
-		addToDoubleList(student, &head, &tail);
+		getchar();
+		printf("Type 'y' if you wish to add a student to the first list. Otherwise, the student will be added to the second list.\n");
+		c = getchar();
+		if (c == 'y')
+			addToDoubleList(student, &head1, &tail1);
+		else
+			addToDoubleList(student, &head2, &tail2);
 
 		getchar();
 		printf("Add new student? Type y/n\n");
-		end = getchar();
-		if (end == 'n')
+		c = getchar();
+		if (c == 'n')
 			break;
 
 	}
-	printf("LIST: \n");
-	printList(head);
+	printf("LIST 1: \n");
+	printList(head1);
 	printf("\n");
+
+
+	printf("LIST 2: \n");
+	printList(head2);
+	printf("\n");
+
+	merge(&head1, &tail1, &head2, &tail2);
+	printf("after merging lists...");
+
+	printf("LIST 1: \n");
+	printList(head1);
+	printf("\n");
+
+
+	printf("LIST 2: \n");
+	printList(head2);
+	printf("\n");
+
+
+
 	
 }
